@@ -43,7 +43,7 @@ public class Producer {
                 Object o = gson.fromJson(bufferedReader, Object.class);
                 String original = gson.toJson(o);
 
-                ProducerRecord producerRecord = new ProducerRecord("example_topic3",null,original);
+                ProducerRecord producerRecord = new ProducerRecord("example_topic5",null,original);
 
                 producer.send(producerRecord, new Callback() {
                     @Override
@@ -54,7 +54,7 @@ public class Producer {
                 });
             }
             try {
-                Thread.sleep(5000);
+                Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -67,7 +67,7 @@ public class Producer {
 
     public static KafkaProducer<String,String> createKafkaProducer()
     {
-        final String bootstrapServer = "18.118.168.128:9092";
+        final String bootstrapServer = "3.145.10.98:9092";
 
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServer);
