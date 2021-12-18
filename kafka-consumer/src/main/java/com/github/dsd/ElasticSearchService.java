@@ -37,12 +37,12 @@ public class ElasticSearchService {
             for (ConsumerRecord<String, String> record : records) {
                 System.out.println(record.key());
                 String jsonString = record.value();
-                String id_str = extractIdFromJson(record.value());
+                String[] idAndSite = extractIdAndSiteFromJson(record.value());
                 logger.info("Key:" + record.key() + " Value:" + record.value());
                 logger.info("Partition:" + record.partition() + " Offset:" + record.offset());
                 IndexRequest indexRequest = new IndexRequest(
                         ELASTICSEARCH_INDEX
-                ).source(jsonString, XContentType.JSON).id(id_str);
+                ).source(jsonString, XContentType.JSON).id(idAndSite[0]).routing(idAndSite[1]);
                 IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
                 System.out.println("INDEX RESPONSE : " + indexResponse);
                 String id = indexResponse.getId();
@@ -51,12 +51,16 @@ public class ElasticSearchService {
         }
     }
 
-    private static String extractIdFromJson(String json) throws ParseException {
+    private static String[] extractIdAndSiteFromJson(String json) throws ParseException {
         System.out.println(json);
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObject = (JSONObject) jsonParser.parse(json);
-        Optional<Object> id_str = Optional.ofNullable(jsonObject.get("id_str"));
-        return id_str.isPresent() ? id_str.toString() : UUID.randomUUID().toString();
+        JSONObject threadObject = (JSONObject) jsonObject.get("thread");
+//        System.out.println(jsonObject.get("thread").toString());
+        Optional<Object> id_str = Optional.ofNullable(jsonObject.get("uuid"));
+        String[] idAndSite = {id_str.isPresent() ? id_str.toString() : UUID.randomUUID().toString(), threadObject.get("site").toString()};
+        //return id_str.isPresent() ? id_str.toString() : UUID.randomUUID().toString();
+        return idAndSite;
     }
 
 }
